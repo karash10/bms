@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMS - Admin Events</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container">
+    <h1 class="page-title">Manage Events</h1>
+
+    <div class="admin-nav">
+        <a th:href="@{/admin}">Dashboard</a>
+        <a th:href="@{/admin/events}" class="active">Events</a>
+        <a th:href="@{/admin/venues}">Venues</a>
+        <a th:href="@{/admin/shows}">Shows</a>
+        <a th:href="@{/admin/reports}">Reports</a>
+    </div>
+
+    <!-- Flash messages -->
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+    <!-- Create Event Form -->
+    <div class="form-card">
+        <h3>Create New Event</h3>
+        <form th:action="@{/admin/events/create}" method="post">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="title">Title *</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventType">Event Type *</label>
+                    <select id="eventType" name="eventType" required>
+                        <option value="">Select type...</option>
+                        <option value="MOVIE">Movie</option>
+                        <option value="CONCERT">Concert</option>
+                        <option value="SPORT">Sport</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="3"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="durationMinutes">Duration (minutes)</label>
+                    <input type="number" id="durationMinutes" name="durationMinutes" min="1">
+                </div>
+                <div class="form-group">
+                    <label for="imageUrl">Image URL</label>
+                    <input type="text" id="imageUrl" name="imageUrl" placeholder="https://...">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: auto;">Create Event</button>
+        </form>
+    </div>
+
+    <!-- Events List -->
+    <h2 class="page-title" style="font-size: 1.25rem;">Existing Events</h2>
+    <div th:if="${events != null and !events.isEmpty()}" class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Duration</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="event : ${events}">
+                    <td th:text="${event.id}">1</td>
+                    <td>
+                        <a th:href="@{/events/{id}(id=${event.id})}" th:text="${event.title}">Event Title</a>
+                    </td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${event.eventType.name() == 'MOVIE' ? 'badge-movie' : (event.eventType.name() == 'CONCERT' ? 'badge-concert' : 'badge-sport')}"
+                              th:text="${event.eventType}">TYPE</span>
+                    </td>
+                    <td th:text="${event.durationMinutes != null ? event.durationMinutes + ' min' : '-'}">120 min</td>
+                    <td>
+                        <form th:action="@{/admin/events/delete}" method="post" style="display:inline;"
+                              onsubmit="return confirm('Delete this event?')">
+                            <input type="hidden" name="eventId" th:value="${event.id}">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:if="${events == null or events.isEmpty()}" class="empty-state">
+        <p>No events created yet.</p>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMS - Events</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container">
+    <h1 class="page-title">All Events</h1>
+
+    <div th:if="${events != null and !events.isEmpty()}" class="card-grid">
+        <a th:each="event : ${events}"
+           th:href="@{/events/{id}(id=${event.id})}"
+           class="card" style="text-decoration: none; color: inherit;">
+            <div class="card-title" th:text="${event.title}">Event Title</div>
+            <div class="card-meta">
+                <span class="badge"
+                      th:classappend="${event.eventType.name() == 'MOVIE' ? 'badge-movie' : (event.eventType.name() == 'CONCERT' ? 'badge-concert' : 'badge-sport')}"
+                      th:text="${event.eventType}">TYPE</span>
+                <span th:if="${event.durationMinutes != null}"
+                      th:text="${event.durationMinutes + ' min'}">120 min</span>
+            </div>
+            <div class="card-desc" th:if="${event.description}"
+                 th:text="${#strings.abbreviate(event.description, 150)}">Description text goes here...</div>
+        </a>
+    </div>
+
+    <div th:if="${events == null or events.isEmpty()}" class="empty-state">
+        <p>No events available right now.</p>
+        <p style="font-size: 0.9rem;">Events will appear here once an admin creates them.</p>
+    </div>
+</div>
+
+</body>
+</html>

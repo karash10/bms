@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMS - Admin Reports</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container">
+    <h1 class="page-title">Analytics &amp; Reports</h1>
+
+    <div class="admin-nav">
+        <a th:href="@{/admin}">Dashboard</a>
+        <a th:href="@{/admin/events}">Events</a>
+        <a th:href="@{/admin/venues}">Venues</a>
+        <a th:href="@{/admin/shows}">Shows</a>
+        <a th:href="@{/admin/reports}" class="active">Reports</a>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="card-grid" style="margin-bottom: 2rem;">
+        <div class="card" style="text-align: center; padding: 2rem;">
+            <div style="font-size: 2.5rem; font-weight: 700; color: #2563eb;" th:text="${totalBookings}">0</div>
+            <div style="color: #64748b; margin-top: 0.5rem;">Confirmed Bookings</div>
+        </div>
+        <div class="card" style="text-align: center; padding: 2rem;">
+            <div style="font-size: 2.5rem; font-weight: 700; color: #16a34a;">
+                $<span th:text="${#numbers.formatDecimal(totalRevenue, 1, 2)}">0.00</span>
+            </div>
+            <div style="color: #64748b; margin-top: 0.5rem;">Total Revenue</div>
+        </div>
+    </div>
+
+    <!-- Bookings Per Event -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <h2 style="margin-bottom: 1rem;">Bookings Per Event</h2>
+        <div th:if="${#lists.isEmpty(bookingsPerEvent)}" style="color: #64748b; padding: 1rem;">
+            No booking data available yet.
+        </div>
+        <table th:unless="${#lists.isEmpty(bookingsPerEvent)}" class="table">
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Bookings</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="report : ${bookingsPerEvent}">
+                    <td th:text="${report.eventTitle}">Event Name</td>
+                    <td th:text="${report.bookingCount}">0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Revenue Per Event -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <h2 style="margin-bottom: 1rem;">Revenue Per Event</h2>
+        <div th:if="${#lists.isEmpty(revenuePerEvent)}" style="color: #64748b; padding: 1rem;">
+            No revenue data available yet.
+        </div>
+        <table th:unless="${#lists.isEmpty(revenuePerEvent)}" class="table">
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Revenue</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="report : ${revenuePerEvent}">
+                    <td th:text="${report.eventTitle}">Event Name</td>
+                    <td>$<span th:text="${#numbers.formatDecimal(report.totalRevenue, 1, 2)}">0.00</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Most Popular Events (by seats booked) -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <h2 style="margin-bottom: 1rem;">Most Popular Events (by Seats Booked)</h2>
+        <div th:if="${#lists.isEmpty(popularEvents)}" style="color: #64748b; padding: 1rem;">
+            No data available yet.
+        </div>
+        <table th:unless="${#lists.isEmpty(popularEvents)}" class="table">
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Seats Booked</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="report : ${popularEvents}">
+                    <td th:text="${report.eventTitle}">Event Name</td>
+                    <td th:text="${report.totalSeatsBooked}">0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Seat Occupancy Per Show -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <h2 style="margin-bottom: 1rem;">Seat Occupancy Per Show</h2>
+        <div th:if="${#lists.isEmpty(seatOccupancy)}" style="color: #64748b; padding: 1rem;">
+            No shows available yet.
+        </div>
+        <table th:unless="${#lists.isEmpty(seatOccupancy)}" class="table">
+            <thead>
+                <tr>
+                    <th>Show ID</th>
+                    <th>Event</th>
+                    <th>Venue</th>
+                    <th>Total Seats</th>
+                    <th>Booked</th>
+                    <th>Occupancy</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="report : ${seatOccupancy}">
+                    <td th:text="${report.showId}">#</td>
+                    <td th:text="${report.eventTitle}">Event</td>
+                    <td th:text="${report.venueName}">Venue</td>
+                    <td th:text="${report.totalSeats}">0</td>
+                    <td th:text="${report.bookedSeats}">0</td>
+                    <td>
+                        <span th:text="${report.occupancyPercent}">0</span>%
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

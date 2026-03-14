@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMS - Admin Venues</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container">
+    <h1 class="page-title">Manage Venues</h1>
+
+    <div class="admin-nav">
+        <a th:href="@{/admin}">Dashboard</a>
+        <a th:href="@{/admin/events}">Events</a>
+        <a th:href="@{/admin/venues}" class="active">Venues</a>
+        <a th:href="@{/admin/shows}">Shows</a>
+        <a th:href="@{/admin/reports}">Reports</a>
+    </div>
+
+    <!-- Flash messages -->
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+    <!-- Create Venue Form -->
+    <div class="form-card">
+        <h3>Create New Venue</h3>
+        <form th:action="@{/admin/venues/create}" method="post">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">Venue Name *</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="location">Location *</label>
+                    <input type="text" id="location" name="location" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="rows">Number of Rows *</label>
+                    <input type="number" id="rows" name="rows" min="1" max="26" required placeholder="e.g. 5">
+                </div>
+                <div class="form-group">
+                    <label for="seatsPerRow">Seats per Row *</label>
+                    <input type="number" id="seatsPerRow" name="seatsPerRow" min="1" max="50" required placeholder="e.g. 10">
+                </div>
+            </div>
+            <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;">
+                Seats will be auto-generated. For example, 5 rows x 10 seats = 50 total seats (rows A-E).
+            </p>
+            <button type="submit" class="btn btn-primary" style="width: auto;">Create Venue</button>
+        </form>
+    </div>
+
+    <!-- Venues List -->
+    <h2 class="page-title" style="font-size: 1.25rem;">Existing Venues</h2>
+    <div th:if="${venues != null and !venues.isEmpty()}" class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="venue : ${venues}">
+                    <td th:text="${venue.id}">1</td>
+                    <td th:text="${venue.name}">Venue Name</td>
+                    <td th:text="${venue.location}">Location</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:if="${venues == null or venues.isEmpty()}" class="empty-state">
+        <p>No venues created yet.</p>
+    </div>
+</div>
+
+</body>
+</html>

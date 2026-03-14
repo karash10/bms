@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:fragment="title">BMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</head>
+<body>
+
+<!-- Navbar fragment -->
+<nav th:fragment="navbar" class="navbar">
+    <div class="navbar-brand">
+        <a th:href="@{/}">BMS</a>
+    </div>
+    <div class="navbar-links">
+        <a th:href="@{/events}">Events</a>
+
+        <!-- Authenticated user links -->
+        <a th:if="${#authorization.expression('isAuthenticated()')}"
+           th:href="@{/my-bookings}">My Bookings</a>
+
+        <!-- Admin link -->
+        <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
+           th:href="@{/admin}">Admin</a>
+
+        <!-- Guest links -->
+        <a th:unless="${#authorization.expression('isAuthenticated()')}"
+           th:href="@{/login}">Login</a>
+        <a th:unless="${#authorization.expression('isAuthenticated()')}"
+           th:href="@{/register}">Register</a>
+
+        <!-- Logged-in user info -->
+        <span th:if="${#authorization.expression('isAuthenticated()')}"
+              class="navbar-user">
+            <span sec:authentication="name">user</span>
+            <form th:action="@{/logout}" method="post" style="display:inline; margin:0;">
+                <button type="submit" class="btn-logout">Logout</button>
+            </form>
+        </span>
+    </div>
+</nav>
+
+</body>
+</html>

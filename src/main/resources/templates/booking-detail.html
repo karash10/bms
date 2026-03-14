@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMS - Booking Detail</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container">
+    <h1 class="page-title" th:text="'Booking #' + ${booking.id}">Booking #1</h1>
+
+    <!-- Flash messages -->
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+    <div class="detail-header">
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+            <h2 th:text="${booking.show.event.title}">Event Title</h2>
+            <span class="badge"
+                  th:classappend="${booking.status.name() == 'CONFIRMED' ? 'badge-confirmed' : (booking.status.name() == 'PENDING' ? 'badge-pending' : 'badge-cancelled')}"
+                  th:text="${booking.status}">STATUS</span>
+        </div>
+
+        <div class="detail-info">
+            <div class="detail-info-item">
+                <span class="label">Show Time</span>
+                <span class="value" th:text="${#temporals.format(booking.show.startTime, 'MMM dd, yyyy hh:mm a')}">Mar 15</span>
+            </div>
+            <div class="detail-info-item">
+                <span class="label">Venue</span>
+                <span class="value" th:text="${booking.show.venue.name}">Venue</span>
+            </div>
+            <div class="detail-info-item">
+                <span class="label">Location</span>
+                <span class="value" th:text="${booking.show.venue.location}">Location</span>
+            </div>
+            <div class="detail-info-item">
+                <span class="label">Booked On</span>
+                <span class="value" th:text="${#temporals.format(booking.bookingTime, 'MMM dd, yyyy hh:mm a')}">Mar 14</span>
+            </div>
+            <div class="detail-info-item">
+                <span class="label">Total Amount</span>
+                <span class="value" th:text="'$' + ${#numbers.formatDecimal(booking.totalAmount, 1, 2)}">$20.00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booked Seats -->
+    <h2 class="page-title">Booked Seats</h2>
+    <div th:if="${bookingSeats != null and !bookingSeats.isEmpty()}" class="table-wrapper" style="margin-bottom: 2rem;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Seat</th>
+                    <th>Row</th>
+                    <th>Number</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="bs : ${bookingSeats}">
+                    <td th:text="${bs.seat.seatRow + bs.seat.seatNumber}">A1</td>
+                    <td th:text="${bs.seat.seatRow}">A</td>
+                    <td th:text="${bs.seat.seatNumber}">1</td>
+                    <td th:text="'$' + ${#numbers.formatDecimal(bs.price, 1, 2)}">$10.00</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:if="${bookingSeats == null or bookingSeats.isEmpty()}" class="alert alert-info">
+        Seat details are not available (booking may have been cancelled).
+    </div>
+
+    <!-- Actions -->
+    <div class="btn-group" th:if="${booking.status.name() == 'PENDING'}">
+        <form th:action="@{/bookings/{id}/pay(id=${booking.id})}" method="post" style="display:inline;">
+            <button type="submit" class="btn btn-success btn-sm">Pay Now</button>
+        </form>
+        <form th:action="@{/bookings/{id}/cancel(id=${booking.id})}" method="post" style="display:inline;"
+              onsubmit="return confirm('Are you sure you want to cancel this booking?')">
+            <button type="submit" class="btn btn-danger btn-sm">Cancel Booking</button>
+        </form>
+    </div>
+
+    <div style="margin-top: 1.5rem;">
+        <a th:href="@{/my-bookings}" class="btn btn-outline btn-sm">Back to My Bookings</a>
+    </div>
+</div>
+
+</body>
+</html>

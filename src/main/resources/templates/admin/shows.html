@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMS - Admin Shows</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container">
+    <h1 class="page-title">Manage Shows</h1>
+
+    <div class="admin-nav">
+        <a th:href="@{/admin}">Dashboard</a>
+        <a th:href="@{/admin/events}">Events</a>
+        <a th:href="@{/admin/venues}">Venues</a>
+        <a th:href="@{/admin/shows}" class="active">Shows</a>
+        <a th:href="@{/admin/reports}">Reports</a>
+    </div>
+
+    <!-- Flash messages -->
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+    <!-- Create Show Form -->
+    <div class="form-card">
+        <h3>Create New Show</h3>
+
+        <div th:if="${events == null or events.isEmpty()}" class="alert alert-warning">
+            No events available. <a th:href="@{/admin/events}">Create an event first.</a>
+        </div>
+        <div th:if="${venues == null or venues.isEmpty()}" class="alert alert-warning">
+            No venues available. <a th:href="@{/admin/venues}">Create a venue first.</a>
+        </div>
+
+        <form th:action="@{/admin/shows/create}" method="post"
+              th:if="${events != null and !events.isEmpty() and venues != null and !venues.isEmpty()}">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="eventId">Event *</label>
+                    <select id="eventId" name="eventId" required>
+                        <option value="">Select event...</option>
+                        <option th:each="event : ${events}"
+                                th:value="${event.id}"
+                                th:text="${event.title + ' (' + event.eventType + ')'}">Event</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="venueId">Venue *</label>
+                    <select id="venueId" name="venueId" required>
+                        <option value="">Select venue...</option>
+                        <option th:each="venue : ${venues}"
+                                th:value="${venue.id}"
+                                th:text="${venue.name + ' - ' + venue.location}">Venue</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="startTime">Start Time *</label>
+                    <input type="datetime-local" id="startTime" name="startTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="endTime">End Time *</label>
+                    <input type="datetime-local" id="endTime" name="endTime" required>
+                </div>
+            </div>
+            <div class="form-group" style="max-width: 200px;">
+                <label for="price">Price per Seat ($) *</label>
+                <input type="number" id="price" name="price" min="0" step="0.01" required placeholder="e.g. 15.00">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: auto;">Create Show</button>
+        </form>
+    </div>
+
+    <!-- Shows List -->
+    <h2 class="page-title" style="font-size: 1.25rem;">Existing Shows</h2>
+    <div th:if="${shows != null and !shows.isEmpty()}" class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Event</th>
+                    <th>Venue</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="show : ${shows}">
+                    <td th:text="${show.id}">1</td>
+                    <td th:text="${show.event.title}">Event Name</td>
+                    <td th:text="${show.venue.name}">Venue</td>
+                    <td th:text="${#temporals.format(show.startTime, 'MMM dd, yyyy hh:mm a')}">Mar 15</td>
+                    <td th:text="${#temporals.format(show.endTime, 'MMM dd, yyyy hh:mm a')}">Mar 15</td>
+                    <td th:text="'$' + ${#numbers.formatDecimal(show.price, 1, 2)}">$10.00</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:if="${shows == null or shows.isEmpty()}" class="empty-state">
+        <p>No shows created yet.</p>
+    </div>
+</div>
+
+</body>
+</html>

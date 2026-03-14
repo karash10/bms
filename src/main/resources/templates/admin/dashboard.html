@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMS - Admin Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container">
+    <h1 class="page-title">Admin Dashboard</h1>
+
+    <div class="admin-nav">
+        <a th:href="@{/admin}" class="active">Dashboard</a>
+        <a th:href="@{/admin/events}">Events</a>
+        <a th:href="@{/admin/venues}">Venues</a>
+        <a th:href="@{/admin/shows}">Shows</a>
+        <a th:href="@{/admin/reports}">Reports</a>
+    </div>
+
+    <div class="card-grid">
+        <div class="card" style="text-align: center; padding: 2rem;">
+            <div style="font-size: 2.5rem; font-weight: 700; color: #2563eb;" th:text="${eventCount}">0</div>
+            <div style="color: #64748b; margin-top: 0.5rem;">Events</div>
+            <a th:href="@{/admin/events}" class="btn btn-outline btn-sm" style="margin-top: 1rem;">Manage</a>
+        </div>
+        <div class="card" style="text-align: center; padding: 2rem;">
+            <div style="font-size: 2.5rem; font-weight: 700; color: #16a34a;" th:text="${venueCount}">0</div>
+            <div style="color: #64748b; margin-top: 0.5rem;">Venues</div>
+            <a th:href="@{/admin/venues}" class="btn btn-outline btn-sm" style="margin-top: 1rem;">Manage</a>
+        </div>
+        <div class="card" style="text-align: center; padding: 2rem;">
+            <div style="font-size: 2.5rem; font-weight: 700; color: #9333ea;" th:text="${showCount}">0</div>
+            <div style="color: #64748b; margin-top: 0.5rem;">Shows</div>
+            <a th:href="@{/admin/shows}" class="btn btn-outline btn-sm" style="margin-top: 1rem;">Manage</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

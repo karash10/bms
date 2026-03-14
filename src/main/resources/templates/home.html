@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMS - Home</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container">
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>Book Your Next Experience</h1>
+        <p>Movies, concerts, and sports events — all in one place.</p>
+        <div class="hero-actions">
+            <a th:href="@{/events}" class="btn btn-primary">Browse Events</a>
+            <a th:unless="${#authorization.expression('isAuthenticated()')}"
+               th:href="@{/register}" class="btn btn-secondary">Create Account</a>
+        </div>
+    </div>
+
+    <!-- Featured Events -->
+    <div th:if="${featuredEvents != null and !featuredEvents.isEmpty()}">
+        <h2 class="page-title" style="margin-top: 2rem;">Featured Events</h2>
+        <div class="card-grid">
+            <a th:each="event : ${featuredEvents}"
+               th:href="@{/events/{id}(id=${event.id})}"
+               class="card" style="text-decoration: none; color: inherit;">
+                <div class="card-title" th:text="${event.title}">Event Title</div>
+                <div class="card-meta">
+                    <span class="badge"
+                          th:classappend="${event.eventType.name() == 'MOVIE' ? 'badge-movie' : (event.eventType.name() == 'CONCERT' ? 'badge-concert' : 'badge-sport')}"
+                          th:text="${event.eventType}">TYPE</span>
+                    <span th:if="${event.durationMinutes != null}"
+                          th:text="${event.durationMinutes + ' min'}">120 min</span>
+                </div>
+                <div class="card-desc" th:if="${event.description}"
+                     th:text="${#strings.abbreviate(event.description, 120)}">Description...</div>
+            </a>
+        </div>
+
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <a th:href="@{/events}" class="btn btn-outline btn-sm">View All Events</a>
+        </div>
+    </div>
+
+    <!-- Empty state if no events -->
+    <div th:if="${featuredEvents == null or featuredEvents.isEmpty()}" class="empty-state" style="margin-top: 3rem;">
+        <p>No events yet. Check back soon!</p>
+    </div>
+</div>
+
+</body>
+</html>

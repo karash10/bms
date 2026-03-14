@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMS - My Bookings</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container">
+    <h1 class="page-title">My Bookings</h1>
+
+    <!-- Flash messages -->
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+    <div th:if="${bookings != null and !bookings.isEmpty()}" class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Booking #</th>
+                    <th>Event</th>
+                    <th>Show Time</th>
+                    <th>Venue</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Booked On</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="booking : ${bookings}">
+                    <td>
+                        <a th:href="@{/bookings/{id}(id=${booking.id})}"
+                           th:text="'#' + ${booking.id}">#1</a>
+                    </td>
+                    <td th:text="${booking.show.event.title}">Event Name</td>
+                    <td th:text="${#temporals.format(booking.show.startTime, 'MMM dd, yyyy hh:mm a')}">Mar 15</td>
+                    <td th:text="${booking.show.venue.name}">Venue</td>
+                    <td th:text="'$' + ${#numbers.formatDecimal(booking.totalAmount, 1, 2)}">$20.00</td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${booking.status.name() == 'CONFIRMED' ? 'badge-confirmed' : (booking.status.name() == 'PENDING' ? 'badge-pending' : 'badge-cancelled')}"
+                              th:text="${booking.status}">STATUS</span>
+                    </td>
+                    <td th:text="${#temporals.format(booking.bookingTime, 'MMM dd, yyyy hh:mm a')}">Mar 14</td>
+                    <td>
+                        <a th:href="@{/bookings/{id}(id=${booking.id})}" class="btn btn-outline btn-sm">View</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:if="${bookings == null or bookings.isEmpty()}" class="empty-state">
+        <p>You haven't made any bookings yet.</p>
+        <a th:href="@{/events}" class="btn btn-primary btn-sm" style="width: auto;">Browse Events</a>
+    </div>
+</div>
+
+</body>
+</html>

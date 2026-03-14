@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'BMS - ' + ${event.title}">BMS - Event Detail</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container">
+    <!-- Event Header -->
+    <div class="detail-header">
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+            <h1 th:text="${event.title}">Event Title</h1>
+            <span class="badge"
+                  th:classappend="${event.eventType.name() == 'MOVIE' ? 'badge-movie' : (event.eventType.name() == 'CONCERT' ? 'badge-concert' : 'badge-sport')}"
+                  th:text="${event.eventType}">TYPE</span>
+        </div>
+
+        <p th:if="${event.description}" class="page-subtitle" th:text="${event.description}">Event description...</p>
+
+        <div class="detail-info">
+            <div class="detail-info-item" th:if="${event.durationMinutes != null}">
+                <span class="label">Duration</span>
+                <span class="value" th:text="${event.durationMinutes + ' minutes'}">120 minutes</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shows Table -->
+    <h2 class="page-title">Available Shows</h2>
+
+    <div th:if="${shows != null and !shows.isEmpty()}" class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Venue</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Price</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="show : ${shows}">
+                    <td>
+                        <strong th:text="${show.venue.name}">Venue Name</strong>
+                        <br>
+                        <small style="color: #64748b;" th:text="${show.venue.location}">Location</small>
+                    </td>
+                    <td th:text="${#temporals.format(show.startTime, 'MMM dd, yyyy hh:mm a')}">Mar 15, 2026 07:00 PM</td>
+                    <td th:text="${#temporals.format(show.endTime, 'MMM dd, yyyy hh:mm a')}">Mar 15, 2026 09:30 PM</td>
+                    <td>
+                        <strong th:text="'$' + ${#numbers.formatDecimal(show.price, 1, 2)}">$10.00</strong>
+                    </td>
+                    <td>
+                        <a th:href="@{/shows/{id}(id=${show.id})}" class="btn btn-primary btn-sm">Book Now</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:if="${shows == null or shows.isEmpty()}" class="empty-state">
+        <p>No shows scheduled for this event yet.</p>
+    </div>
+
+    <div style="margin-top: 1.5rem;">
+        <a th:href="@{/events}" class="btn btn-outline btn-sm">Back to Events</a>
+    </div>
+</div>
+
+</body>
+</html>

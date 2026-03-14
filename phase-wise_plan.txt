@@ -1,0 +1,472 @@
+# EventSphere — Scalable Event Booking Platform
+
+EventSphere is a scalable multi-event booking platform designed to handle high concurrency ticket bookings for **movies, sports, concerts, and large-scale events**. The system focuses on **transaction safety, concurrency control, and scalable backend architecture**, ensuring that seat reservations remain consistent even under heavy traffic.
+
+The platform supports event discovery, seat selection, secure authentication, transactional booking workflows, and administrative management. The architecture is designed to evolve from a **modular monolith into a scalable distributed system**, making it suitable for production-scale environments.
+
+---
+
+# Core Features
+
+## User Features
+
+* Browse events (Movies, Sports, Concerts)
+* View event and show details
+* Seat selection with seat availability visualization
+* Book tickets
+* Cancel bookings
+* View booking history
+
+## Organizer Features
+
+* Create and manage events
+* Configure venues and seat layouts
+* Schedule shows
+* Define seat pricing
+
+## Admin Features
+
+* Manage users
+* Monitor bookings and revenue
+* Generate reports
+* View system metrics
+
+---
+
+# System Highlights
+
+* Supports multiple event categories
+* Dynamic seat management
+* Concurrency-safe booking system
+* Scalable backend architecture
+* Hybrid authentication system
+* Payment workflow simulation
+* Redis-based seat locking
+* Docker-based deployment
+
+---
+
+# Tech Stack
+
+## Backend
+
+* Java 21
+* Spring Boot
+* Spring MVC
+* Hibernate (JPA)
+* Spring Security
+
+## Frontend
+
+* Thymeleaf
+* HTMX
+* HTML5 / CSS
+
+## Database
+
+* PostgreSQL (production)
+* H2 (development)
+
+## Caching & Concurrency
+
+* Redis (seat locking and caching)
+
+## Authentication
+
+Hybrid authentication model:
+
+* Session-based authentication for Web UI
+* JWT authentication for REST APIs
+
+## DevOps
+
+* Docker
+* GitHub Actions
+* Render / Cloud deployment
+
+---
+
+# System Architecture
+
+EventSphere follows a **modular monolith architecture** structured using MVC principles.
+
+```
+Client
+   ↓
+Controller Layer
+   ↓
+Service Layer
+   ↓
+Repository Layer
+   ↓
+Database / Cache
+```
+
+Core modules:
+
+* Authentication Module
+* Event Management Module
+* Booking Module
+* Payment Module
+* Admin Module
+
+The system is designed so these modules can later be extracted into **independent microservices** if needed.
+
+---
+
+# Phase-wise Development Plan
+
+The system is developed through multiple phases, gradually building features and scalability.
+
+---
+
+# Phase 0 — Project Setup and Infrastructure
+
+## Objective
+
+Establish the base project infrastructure and development environment.
+
+## Key Tasks
+
+* Initialize Spring Boot project
+* Configure Maven dependencies
+* Setup project directory structure
+* Configure H2 database for development
+* Configure PostgreSQL for production
+* Create Dockerfile
+* Setup GitHub Actions CI pipeline
+* Implement health-check endpoint
+
+## Outcome
+
+At the end of this phase:
+
+* Application runs locally
+* CI pipeline builds automatically
+* Docker container builds successfully
+* Development database is operational
+
+---
+
+# Phase 1 — Core Domain Modeling and Database Design
+
+## Objective
+
+Define the fundamental entities and database schema.
+
+## Core Entities
+
+* User
+* Event
+* Venue
+* Show
+* Seat
+* Booking
+* BookingSeat
+
+## Key Tasks
+
+* Implement JPA entity classes
+* Create repository interfaces
+* Define entity relationships
+* Configure database indexing
+
+## Outcome
+
+At the end of this phase:
+
+* Database schema finalized
+* Core entities implemented
+* System can store events, venues, and bookings
+
+---
+
+# Phase 2 — Event and Venue Management
+
+## Objective
+
+Enable administrators to manage events and venues.
+
+## Features
+
+* Create events
+* Create venues
+* Generate seat layouts
+* Schedule shows
+* Configure seat pricing
+
+## Outcome
+
+At the end of this phase:
+
+* Administrators can create and manage events
+* Venues and seating layouts are defined
+* Shows can be scheduled
+
+---
+
+# Phase 3 — Event Discovery APIs
+
+## Objective
+
+Allow users to browse and explore events.
+
+## Features
+
+* Event listing
+* Event filtering
+* Show details
+* Seat availability APIs
+
+## Outcome
+
+At the end of this phase:
+
+* Users can browse events
+* Users can view show schedules
+* Seat layouts can be retrieved via API
+
+---
+
+# Phase 3.5 — Frontend Foundation
+
+## Objective
+
+Build the user interface and connect it to backend APIs.
+
+## Technologies
+
+* Thymeleaf
+* HTMX
+* HTML / CSS
+
+## Features
+
+* Home page
+* Event listing page
+* Event detail page
+* Show detail page
+* Seat layout visualization
+
+## Outcome
+
+At the end of this phase:
+
+* Users can browse events through the UI
+* Backend APIs are connected to frontend templates
+* Dynamic updates handled using HTMX
+
+---
+
+# Phase 4 — Seat Booking Engine
+
+## Objective
+
+Implement ticket booking functionality.
+
+## Features
+
+* Seat selection
+* Ticket booking
+* Booking history
+* Booking cancellation
+
+## Outcome
+
+At the end of this phase:
+
+* Users can book seats for shows
+* Seat availability updates correctly
+* Booking records are stored
+
+---
+
+# Phase 5 — Authentication and Role-Based Access
+
+## Objective
+
+Secure the system and implement user roles.
+
+## Authentication Model
+
+Hybrid authentication:
+
+* Session-based authentication for web UI
+* JWT authentication for REST APIs
+
+## Roles
+
+* USER
+* ORGANIZER
+* ADMIN
+
+## Outcome
+
+At the end of this phase:
+
+* Users can register and login
+* Secure authentication system implemented
+* Role-based access control enabled
+
+---
+
+# Phase 6 — Concurrency-Safe Seat Locking
+
+## Objective
+
+Prevent double booking during high concurrency.
+
+## Implementation
+
+Seat locking using Redis distributed locks.
+
+Example:
+
+```
+SET seat:A12 user123 NX EX 300
+```
+
+Seat locks automatically expire if booking is not completed.
+
+## Outcome
+
+At the end of this phase:
+
+* Seat locking prevents race conditions
+* Double booking is avoided
+* Concurrent users can safely reserve seats
+
+---
+
+# Phase 7 — Payment Simulation and Transaction Handling
+
+## Objective
+
+Integrate booking with a payment workflow.
+
+## Implementation
+
+A simulated payment service is used to:
+
+* simulate payment delays
+* simulate payment success/failure
+* rollback bookings on failure
+
+## Outcome
+
+At the end of this phase:
+
+* Booking workflow becomes transactional
+* Failed payments release seats automatically
+* Seat locks are safely managed
+
+---
+
+# Phase 8 — Admin Dashboard and Monitoring
+
+## Objective
+
+Provide administrative tools and system monitoring.
+
+## Features
+
+Admin dashboard for:
+
+* booking statistics
+* revenue analytics
+* system monitoring
+* user management
+
+## Outcome
+
+At the end of this phase:
+
+* Admins can monitor system activity
+* Booking reports are available
+* System observability is enabled
+
+---
+
+# Phase 9 — Scalability and Performance Optimization
+
+## Objective
+
+Prepare the system to support high traffic and large-scale usage.
+
+## Improvements
+
+* Redis caching for events
+* Database indexing
+* Rate limiting
+* Query optimization
+* Optional booking queue system
+
+## Outcome
+
+At the end of this phase:
+
+* System supports high concurrent traffic
+* Event discovery becomes faster
+* Booking system becomes scalable
+
+---
+
+# Running the Application
+
+## Clone Repository
+
+```
+git clone https://github.com/<your-username>/EventSphere.git
+cd EventSphere
+```
+
+## Run Application (Development)
+
+```
+mvn clean
+mvn spring-boot:run
+```
+
+Application will run at:
+
+```
+http://localhost:8080
+```
+
+---
+
+# Running with Docker
+
+## Build Docker Image
+
+```
+docker build -t eventsphere-backend .
+```
+
+## Run Container
+
+```
+docker run -p 8080:8080 eventsphere-backend
+```
+
+---
+
+# Future Enhancements
+
+* Microservice architecture
+* Real payment gateway integration
+* Notification service
+* Dynamic ticket pricing
+* Mobile application support
+* Event recommendation system
+* Distributed booking queue
+
+---
+
+# Design Goals
+
+* High concurrency booking safety
+* Scalable architecture
+* Secure authentication system
+* Clean modular code structure
+* Production-ready deployment

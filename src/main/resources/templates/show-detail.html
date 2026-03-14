@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMS - Select Seats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container">
+    <!-- Show Info Header -->
+    <div class="detail-header">
+        <h1 th:text="${show.event.title}">Event Title</h1>
+        <div class="detail-info">
+            <div class="detail-info-item">
+                <span class="label">Venue</span>
+                <span class="value" th:text="${show.venue.name}">Venue Name</span>
+            </div>
+            <div class="detail-info-item">
+                <span class="label">Location</span>
+                <span class="value" th:text="${show.venue.location}">Location</span>
+            </div>
+            <div class="detail-info-item">
+                <span class="label">Date &amp; Time</span>
+                <span class="value" th:text="${#temporals.format(show.startTime, 'MMM dd, yyyy hh:mm a')}">Mar 15, 2026 07:00 PM</span>
+            </div>
+            <div class="detail-info-item">
+                <span class="label">Price per Seat</span>
+                <span class="value" th:text="'$' + ${#numbers.formatDecimal(show.price, 1, 2)}">$10.00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flash messages -->
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+    <div class="two-col">
+        <!-- Seat Map -->
+        <div class="seat-map-container">
+            <h3 style="margin-bottom: 1.5rem; text-align: center; color: #1e293b;">Select Your Seats</h3>
+            <div class="screen"></div>
+            <div style="margin-top: 2.5rem;">
+                <div th:each="entry : ${seatMap}" class="seat-row">
+                    <span class="seat-row-label" th:text="${entry.key}">A</span>
+                    <div th:each="seat : ${entry.value}"
+                         th:id="'seat-' + ${seat.id}"
+                         th:classappend="${seat.booked} ? 'seat-booked' : ''"
+                         th:data-id="${seat.id}"
+                         th:data-row="${seat.row}"
+                         th:data-number="${seat.number}"
+                         class="seat"
+                         th:onclick="${seat.booked} ? '' : 'toggleSeat(this)'"
+                         th:text="${seat.number}">1</div>
+                </div>
+            </div>
+            <div class="seat-legend">
+                <div class="seat-legend-item">
+                    <div class="seat-legend-box available"></div>
+                    <span>Available</span>
+                </div>
+                <div class="seat-legend-item">
+                    <div class="seat-legend-box selected"></div>
+                    <span>Selected</span>
+                </div>
+                <div class="seat-legend-item">
+                    <div class="seat-legend-box booked"></div>
+                    <span>Booked</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Summary Sidebar -->
+        <div class="booking-summary">
+            <h3>Booking Summary</h3>
+            <div class="summary-row">
+                <span class="label">Event</span>
+                <span class="value" th:text="${show.event.title}">Event</span>
+            </div>
+            <div class="summary-row">
+                <span class="label">Show Time</span>
+                <span class="value" th:text="${#temporals.format(show.startTime, 'MMM dd, hh:mm a')}">Time</span>
+            </div>
+            <div class="summary-row">
+                <span class="label">Seats Selected</span>
+                <span class="value" id="selected-count">0</span>
+            </div>
+            <div class="summary-row">
+                <span class="label">Selected Seats</span>
+                <span class="value" id="selected-seats-display">None</span>
+            </div>
+            <div class="summary-total">
+                <span>Total</span>
+                <span id="total-price">$0.00</span>
+            </div>
+
+            <form th:action="@{/shows/{id}/book(id=${show.id})}" method="post" id="booking-form"
+                  style="margin-top: 1.5rem;">
+                <div id="seat-inputs"></div>
+                <button type="submit" class="btn btn-primary" id="book-btn" disabled>
+                    Book Now
+                </button>
+                <p id="login-prompt" style="display: none; margin-top: 0.75rem; text-align: center; font-size: 0.85rem; color: #64748b;">
+                    <a th:href="@{/login}">Log in</a> to book seats.
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <div style="margin-top: 1.5rem;">
+        <a th:href="@{/events/{id}(id=${show.event.id})}" class="btn btn-outline btn-sm">Back to Event</a>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    var pricePerSeat = [[${show.price}]];
+    var isAuthenticated = [[${#authorization.expression('isAuthenticated()')}]];
+    var selectedSeats = [];
+
+    function toggleSeat(el) {
+        var seatId = el.getAttribute('data-id');
+        var row = el.getAttribute('data-row');
+        var num = el.getAttribute('data-number');
+        var idx = selectedSeats.findIndex(function(s) { return s.id === seatId; });
+
+        if (idx >= 0) {
+            selectedSeats.splice(idx, 1);
+            el.classList.remove('seat-selected');
+        } else {
+            selectedSeats.push({ id: seatId, row: row, number: num });
+            el.classList.add('seat-selected');
+        }
+
+        updateSummary();
+    }
+
+    function updateSummary() {
+        document.getElementById('selected-count').textContent = selectedSeats.length;
+
+        if (selectedSeats.length === 0) {
+            document.getElementById('selected-seats-display').textContent = 'None';
+        } else {
+            var labels = selectedSeats.map(function(s) { return s.row + s.number; });
+            document.getElementById('selected-seats-display').textContent = labels.join(', ');
+        }
+
+        var total = selectedSeats.length * pricePerSeat;
+        document.getElementById('total-price').textContent = '$' + total.toFixed(2);
+
+        // Update hidden inputs
+        var container = document.getElementById('seat-inputs');
+        container.innerHTML = '';
+        selectedSeats.forEach(function(s) {
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'seatIds';
+            input.value = s.id;
+            container.appendChild(input);
+        });
+
+        var btn = document.getElementById('book-btn');
+        var prompt = document.getElementById('login-prompt');
+
+        if (selectedSeats.length > 0 && isAuthenticated) {
+            btn.disabled = false;
+            prompt.style.display = 'none';
+        } else if (selectedSeats.length > 0 && !isAuthenticated) {
+            btn.disabled = true;
+            prompt.style.display = 'block';
+        } else {
+            btn.disabled = true;
+            prompt.style.display = 'none';
+        }
+    }
+</script>
+
+</body>
+</html>
